@@ -3,11 +3,20 @@ import connection from "../database/database.js";
 export async function getGames(req, res) {
   try {
     let name = req.query.name;
-    const games = await connection.query(
-      `
-    SELECT games.*, categories.name as "categoryName" FROM games WHERE games.name like‘($1)%’JOIN categories ON games."categoryId"=categories.id`,
-      [name]
-    );
+    if (name) {
+      const games = await connection.query(
+        `
+      SELECT games.*, categories.name as "categoryName" FROM games WHERE games.name like‘($1)%’ JOIN categories ON games."categoryId"=categories.id`,
+        [name]
+      );
+    } else {
+      const games = await connection.query(
+        `
+      SELECT games.*, categories.name as "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id`,
+        [name]
+      );
+    }
+
     return res.status(200).send(games.rows);
   } catch (error) {
     console.log(error);
