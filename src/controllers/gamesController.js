@@ -4,20 +4,21 @@ export async function getGames(req, res) {
   try {
     let name = req.query.name;
     if (name) {
+      console.log("to aqui na query");
       const games = await connection.query(
         `
       SELECT games.*, categories.name as "categoryName" FROM games WHERE games.name like‘($1)%’ JOIN categories ON games."categoryId"=categories.id`,
         [name]
       );
+      return res.status(200).send(games.rows);
     } else {
+      console.log("to aqui nao query");
       const games = await connection.query(
         `
-      SELECT games.*, categories.name as "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id`,
-        [name]
+      SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id`
       );
+      return res.status(200).send(games.rows);
     }
-
-    return res.status(200).send(games.rows);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
@@ -47,9 +48,9 @@ export async function postGame(req, res) {
       INSERT INTO 
         games (name,
         image,
-        stockTotal,
-        categoryId,
-        pricePerDay) 
+        "stockTotal",
+        "categoryId",
+        "pricePerDay") 
         VALUES ($1,$2,$3,$4,$5)`,
       [name, image, stockTotal, categoryId, pricePerDay]
     );

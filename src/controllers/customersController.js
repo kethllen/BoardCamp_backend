@@ -71,19 +71,22 @@ export async function updateCustomer(req, res) {
   try {
     const id = parseInt(req.params.id);
     const { name, phone, cpf, birthday } = req.body;
-
+    const customer = await connection.query(
+      `SELECT * FROM customers WHERE id=$1`,
+      [id]
+    );
     const result = await connection.query(
       `SELECT id FROM customers WHERE cpf=$1`,
       [cpf]
     );
-    if (result.rows.length > 0) {
+    if (result.rows.length > 0 && cpf !== customer.rows[0].cpf) {
       return res.status(409).send("Cliente já cadastrado");
     }
 
     await connection.query(
       `
       UPDATE customers
-        SET name=$2, phone=$3, cpf=$4, birthday=$4
+        SET name=$2, phone=$3, cpf=$4, birthday=$5
         WHERE id=$1
     `,
       [id, name, phone, cpf, birthday]
