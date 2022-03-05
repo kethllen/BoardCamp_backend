@@ -13,7 +13,7 @@ customersRouter.get("/customers", getCustomers);
 customersRouter.get("/customers/:id", getCustomer);
 customersRouter.post("/customers", validSchema(customerSchema), postCustomer);
 customersRouter.put(
-  " /customers/:id",
+  "/customers/:id",
   validSchema(customerSchema),
   updateCustomer
 );

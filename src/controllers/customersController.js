@@ -8,21 +8,21 @@ export async function getCustomers(req, res) {
         `select * from customers WHERE customers.cpf like‘($1)%’`,
         [cpf]
       );
+      return res.status(200).send(customers.rows);
     } else {
       const customers = await connection.query("select * from customers");
+      return res.status(200).send(customers.rows);
     }
-
-    res.status(200).send(customers.rows);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
   }
 }
 export async function getCustomer(req, res) {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
 
   try {
-    const { rows: customer } = await db.query(
+    const { rows: customer } = await connection.query(
       `
       SELECT * FROM customers
         WHERE id=$1
@@ -45,14 +45,15 @@ export async function postCustomer(req, res) {
   try {
     const { name, phone, cpf, birthday } = req.body;
 
-    const result = await db.query(`SELECT id FROM customers WHERE cpf=$1`, [
-      cpf,
-    ]);
+    const result = await connection.query(
+      `SELECT id FROM customers WHERE cpf=$1`,
+      [cpf]
+    );
     if (result.rows.length > 0) {
       return res.status(409).send("Cliente já cadastrado");
     }
 
-    await db.query(
+    await connection.query(
       `
       INSERT INTO customers (name, phone, cpf, birthday)
         VALUES ($1, $2, $3, $4)
@@ -68,17 +69,18 @@ export async function postCustomer(req, res) {
 }
 export async function updateCustomer(req, res) {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id);
     const { name, phone, cpf, birthday } = req.body;
 
-    const result = await db.query(`SELECT id FROM customers WHERE cpf=$1`, [
-      cpf,
-    ]);
+    const result = await connection.query(
+      `SELECT id FROM customers WHERE cpf=$1`,
+      [cpf]
+    );
     if (result.rows.length > 0) {
       return res.status(409).send("Cliente já cadastrado");
     }
 
-    await db.query(
+    await connection.query(
       `
       UPDATE customers
         SET name=$2, phone=$3, cpf=$4, birthday=$4

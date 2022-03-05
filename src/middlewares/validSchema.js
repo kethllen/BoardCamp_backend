@@ -6,7 +6,7 @@ export default function validSchema(schema) {
 
     if (validation.error) {
       return res
-        .status(422)
+        .status(400)
         .send(validation.error.details.map((obj) => obj.message));
     }
     next();
