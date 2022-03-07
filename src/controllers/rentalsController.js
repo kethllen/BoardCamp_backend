@@ -114,7 +114,10 @@ export async function postRental(req, res) {
     } else {
       res.sendStatus(400);
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
 }
 export async function returnRental(req, res) {
   try {
