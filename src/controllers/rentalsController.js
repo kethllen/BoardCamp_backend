@@ -15,6 +15,7 @@ export async function getRentals(req, res) {
     if (req.query.gameId) {
       gameId = `WHERE rentals."gameId"  = ${parseInt(req.query.gameId)}`;
     }
+
     const result = await connection.query({
       text: `
           SELECT 
@@ -81,17 +82,26 @@ export async function getRentals(req, res) {
 export async function postRental(req, res) {
   try {
     const { customerId, gameId, daysRented } = req.body;
-
+    let gameAvailable = true;
     const rentDate = dayjs().format("YYYY-MM-DD");
     const game = await connection.query(`SELECT * FROM games WHERE id=$1`, [
       gameId,
     ]);
+
     const idCustomer = await connection.query(
-      `SELECT "id" FROM customers WHERE id=$1`,
+      `SELECT * FROM customers WHERE id=$1`,
       [customerId]
     );
-    if (idCustomer && game) {
-      const originalPrice = game.pricePerDay * daysRented;
+    const rentalsActive = await connection.query(
+      `SELECT * FROM rentals WHERE gameId=$1 and returnDate=${null}`,
+      [gameId]
+    );
+    if (rentalsActive.rowCount == game.rows[0].stockTotal) {
+      gameAvailable = false;
+    }
+
+    if (idCustomer.rowCount > 0 && game.rowCount > 0 && gameAvailable == true) {
+      const originalPrice = game.rows[0].pricePerDay * daysRented;
       await connection.query(
         `
         INSERT INTO rentals ("customerId", "gameId", "rentDate", "daysRented","returnDate","originalPrice","delayFee")
@@ -113,17 +123,17 @@ export async function returnRental(req, res) {
     const rental = await connection.query(`SELECT * FROM rentals WHERE id=$1`, [
       id,
     ]);
-    if (!rental) {
+    if (rental.rowCount == 0) {
       return res.sendStatus(404);
-    } else if (rental.returnDate !== null) {
+    } else if (rental.rows[0].returnDate !== null) {
       return res.sendStatus(400);
     }
     const pricePerDay = await connection.query(
       `SELECT "pricePerDay" FROM games WHERE id=$1`,
-      [rental.gameId]
+      [rental.rows[0].gameId]
     );
     let diff = moment(returnDate, "YYYY-MM-DD").diff(
-      moment(rental.rentDate, "YYYY-MM-DD")
+      moment(rental.rows[0].rentDate, "YYYY-MM-DD")
     );
     const dias = moment.duration(diff).asDays();
     const delayFee = pricePerDay * dias;
@@ -136,8 +146,8 @@ export async function returnRental(req, res) {
       [id, returnDate, delayFee]
     );
     res.sendStatus(200);
-  } catch (erro) {
-    console.log(erro);
+  } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }
@@ -147,9 +157,9 @@ export async function deleteRental(req, res) {
     const rental = await connection.query(`SELECT * FROM rentals WHERE id=$1`, [
       id,
     ]);
-    if (!rental) {
+    if (rental.rowCount == 0) {
       return res.sendStatus(404);
-    } else if (rental.returnDate !== null) {
+    } else if (rental.rows[0].returnDate !== null) {
       return res.sendStatus(400);
     }
     await connection.query(
@@ -160,8 +170,8 @@ export async function deleteRental(req, res) {
     );
 
     res.sendStatus(200);
-  } catch (erro) {
-    console.log(erro);
+  } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }

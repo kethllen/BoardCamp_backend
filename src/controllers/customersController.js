@@ -3,7 +3,7 @@ import connection from "../database/database.js";
 export async function getCustomers(req, res) {
   try {
     let cpf = "";
-    console.log(req.query.cpf);
+
     if (req.query.cpf) {
       cpf = req.query.cpf;
       const customers = await connection.query(
@@ -31,14 +31,14 @@ export async function getCustomer(req, res) {
       [id]
     );
 
-    if (customer.length === 0) {
+    if (customer.rows.length === 0) {
       res.sendStatus(404);
       return;
     }
 
-    res.send(customer[0]);
-  } catch (erro) {
-    console.log(erro);
+    res.send(customer.rows[0]);
+  } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }
@@ -63,8 +63,8 @@ export async function postCustomer(req, res) {
     );
 
     res.sendStatus(201);
-  } catch (erro) {
-    console.log(erro);
+  } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }
@@ -94,8 +94,8 @@ export async function updateCustomer(req, res) {
     );
 
     res.sendStatus(200);
-  } catch (erro) {
-    console.log(erro);
+  } catch (error) {
+    console.log(error);
     res.sendStatus(500);
   }
 }

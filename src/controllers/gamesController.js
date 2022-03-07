@@ -8,7 +8,6 @@ export async function getGames(req, res) {
         `
       SELECT games.*, categories.name as "categoryName" FROM games JOIN categories ON games."categoryId"=categories.id WHERE games.name LIKE '${name}%'`
       );
-      console.log(games.rows);
       return res.status(200).send(games.rows);
     } else {
       const games = await connection.query(
