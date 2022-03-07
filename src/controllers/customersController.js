@@ -14,6 +14,7 @@ export async function getCustomers(req, res) {
     }
     if (req.query.cpf) {
       cpf = req.query.cpf;
+      console.log("cpf " + cpf);
       const customers = await connection.query(
         `SELECT * 
          FROM customers
