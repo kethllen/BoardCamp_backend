@@ -3,15 +3,32 @@ import connection from "../database/database.js";
 export async function getCustomers(req, res) {
   try {
     let cpf = "";
+    let offset = "";
+    if (req.query.offset) {
+      offset = `OFFSET ${req.query.offset}`;
+    }
 
+    let limit = "";
+    if (req.query.limit) {
+      limit = `LIMIT ${req.query.limit}`;
+    }
     if (req.query.cpf) {
       cpf = req.query.cpf;
       const customers = await connection.query(
-        `select * from customers WHERE customers.cpf LIKE '${cpf}%'`
+        `SELECT * 
+         FROM customers
+         ${offset}
+         ${limit}
+         WHERE customers.cpf
+          LIKE '${cpf}%'`
       );
       return res.status(200).send(customers.rows);
     } else {
-      const customers = await connection.query("select * from customers");
+      const customers = await connection.query(`
+        SELECT * 
+        FROM customers
+        ${offset}
+        ${limit}`);
       return res.status(200).send(customers.rows);
     }
   } catch (error) {

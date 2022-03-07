@@ -5,7 +5,15 @@ export async function getRentals(req, res) {
   try {
     let gameId = "";
     let customerId = "";
+    let offset = "";
+    if (req.query.offset) {
+      offset = `OFFSET ${req.query.offset}`;
+    }
 
+    let limit = "";
+    if (req.query.limit) {
+      limit = `LIMIT ${req.query.limit}`;
+    }
     if (req.query.customerId) {
       customerId = `WHERE rentals."customerId"= ${parseInt(
         req.query.customerId
@@ -30,8 +38,10 @@ export async function getRentals(req, res) {
             JOIN customers ON rentals."customerId"=customers.id
             JOIN games ON rentals."gameId"=games.id
             JOIN categories ON games."categoryId"=categories.id
-            ${customerId}
-            ${gameId}
+          ${offset}
+          ${limit}
+          ${customerId}
+          ${gameId}
       `,
       rowMode: "array",
     });
