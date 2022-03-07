@@ -40,7 +40,7 @@ export async function getCustomer(req, res) {
   const id = parseInt(req.params.id);
 
   try {
-    const { rows: customer } = await connection.query(
+    const customer = await connection.query(
       `
       SELECT * FROM customers
         WHERE id=$1
@@ -48,7 +48,7 @@ export async function getCustomer(req, res) {
       [id]
     );
 
-    if (customer.rows.length === 0) {
+    if (customer.rowCount === 0) {
       res.sendStatus(404);
       return;
     }
