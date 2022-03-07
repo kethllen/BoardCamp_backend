@@ -5,19 +5,16 @@ export async function getRentals(req, res) {
   try {
     let gameId = "";
     let customerId = "";
-    console.log("inicio");
+
     if (req.query.customerId) {
       customerId = `WHERE rentals."customerId"= ${parseInt(
         req.query.customerId
       )}`;
-      console.log("entrei no customer");
     }
 
     if (req.query.gameId) {
       gameId = `WHERE rentals."gameId"  = ${parseInt(req.query.gameId)}`;
-      console.log("entrei no game");
     }
-    console.log("passei pelo int");
     const result = await connection.query({
       text: `
           SELECT 
@@ -31,13 +28,12 @@ export async function getRentals(req, res) {
           FROM rentals
             JOIN customers ON rentals."customerId"=customers.id
             JOIN games ON rentals."gameId"=games.id
-            JOIN categories ON games."categoryId"=categories.name
-          ${customerId}
-          ${gameId}
+            JOIN categories ON games."categoryId"=categories.id
+            ${customerId}
+            ${gameId}
       `,
       rowMode: "array",
     });
-    console.log("finalizei");
     res.send(
       result.rows.map((row) => {
         const [
