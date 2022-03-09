@@ -1,5 +1,6 @@
 import connection from "../database/database.js";
 import dayjs from "dayjs";
+import moment from "moment";
 
 export async function getRentals(req, res) {
   try {
@@ -148,8 +149,10 @@ export async function returnRental(req, res) {
     let diff = moment(returnDate, "YYYY-MM-DD").diff(
       moment(rental.rows[0].rentDate, "YYYY-MM-DD")
     );
+
     const dias = moment.duration(diff).asDays();
-    const delayFee = pricePerDay * dias;
+    const delayFee = parseInt(pricePerDay.rows[0].pricePerDay) * parseInt(dias);
+    console.log("delayFee " + delayFee);
     await connection.query(
       `
       UPDATE rentals
