@@ -103,7 +103,7 @@ export async function postRental(req, res) {
       [customerId]
     );
     const rentalsActive = await connection.query(
-      `SELECT * FROM rentals WHERE gameId=$1 and returnDate=${null}`,
+      `SELECT * FROM rentals WHERE "gameId"=$1 and "returnDate"=${null}`,
       [gameId]
     );
     if (rentalsActive.rowCount == game.rows[0].stockTotal) {
@@ -153,7 +153,7 @@ export async function returnRental(req, res) {
     await connection.query(
       `
       UPDATE rentals
-        SET returnDate=$2, delayFee=$3
+        SET "returnDate"=$2, "delayFee"=$3
         WHERE id=$1
     `,
       [id, returnDate, delayFee]
